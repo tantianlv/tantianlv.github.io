@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学生古诗词答题系统</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* iPhone 模拟样式 */
+        .iphone {
+            width: 375px;
+            height: 812px;
+            background-color: #fff;
+            border-radius: 50px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 顶部刘海样式 */
+        .notch {
+            width: 200px;
+            height: 30px;
+            background-color: #000;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 智能体标题样式 */
+        .title {
+            font-size: 24px;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            color: #fff;
+            background-color: #007aff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 年级选择页面样式 */
+        .grade-selection {
+            text-align: center;
+            margin-top: 50px;
+            width: 100%;
+        }
+
+        .grade-button {
+            background-color: #0091ea;
+            color: #fff;
+            border: none;
+            padding: 15px 20px;
+            margin: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 题目页面样式 */
+        .question-container {
+            display: none;
+            text-align: center;
+            width: 100%;
+            position: relative;
+            padding-bottom: 80px; /* 为底部按钮留出空间 */
+        }
+
+        .question-dialog {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #00b0ff;
+            margin: 20px auto;
+            animation: breathe 3s infinite;
+        }
+
+        @keyframes breathe {
+            0% {
+                transform: scale(0.9);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(0.9);
+            }
+        }
+
+        .question {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: left;
+            color: #333;
+        }
+
+        .option-button {
+            background-color: #0091ea;
+            color: #fff;
+            border: none;
+            padding: 15px 20px;
+            margin: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-buttons {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .action-button {
+            background-color: #0091ea;
+            color: #fff;
+            border: none;
+            padding: 15px 20px;
+            margin: 0 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 考点显示样式 */
+        .test-point-display {
+            display: none;
+            background-color: #e1f5fe;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            color: #333;
+        }
+
+        /* 答题结果显示样式 */
+        .answer-display {
+            display: none;
+            background-color: #e1f5fe;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            color: #333;
+        }
+
+        .title-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="iphone">
+        <div class="notch"></div>
+        <!-- 智能体标题 -->
+        <div class="title">365道小学语文学霸养成</div>
+        <!-- 年级选择页面 -->
+        <div class="grade-selection">
+            <h2 style="color: #333;">请选择年级</h2>
+            <button class="grade-button" data-grade="一年级">一年级</button>
+            <button class="grade-button" data-grade="二年级">二年级</button>
+            <button class="grade-button" data-grade="三年级">三年级</button>
+            <button class="grade-button" data-grade="四年级">四年级</button>
+            <button class="grade-button" data-grade="五年级">五年级</button>
+            <button class="grade-button" data-grade="六年级">六年级</button>
+        </div>
+        <!-- 题目页面 -->
+        <div class="question-container">
+            <div class="question-dialog">
+                <div class="circle"></div>
+                <div class="question" id="question"></div>
+                <div class="answer-display" id="answer-display">
+                    <div class="title-label">答案</div>
+                    <div id="answer-content"></div>
+                </div>
+                <div class="test-point-display" id="test-point-display">
+                    <div class="title-label">对应考点</div>
+                    <div id="test-point-content"></div>
+                </div>
+            </div>
+            <div id="options"></div>
+            <div class="action-buttons">
+                <button class="action-button" id="test-point">对应考点</button>
+                <button class="action-button" id="continue">继续答题</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 古诗词题目数据
+        const questions = {
+            "一年级": [
+                {
+                    poem: "《咏鹅》",
+                    question: "“白毛浮绿水”的下一句是什么？",
+                    options: ["红掌拨清波", "曲项向天歌", "白毛浮绿水"],
+                    answer: "红掌拨清波",
+                    testPoint: "了解诗句的对仗和意境，掌握诗句的顺序。"
+                },
+                {
+                    poem: "《画》",
+                    question: "“春去花还在”的下一句是“人来鸟不惊”吗？",
+                    options: ["是", "否"],
+                    answer: "是",
+                    testPoint: "理解诗句的逻辑和呼应关系。"
+                },
+                {
+                    poem: "《悯农二首·其一》",
+                    question: "“春种一粒粟”的下一句是？",
+                    options: ["秋收万颗子", "汗滴禾下土", "粒粒皆辛苦"],
+                    answer: "秋收万颗子",
+                    testPoint: "体会农民劳作的艰辛和粮食的来之不易。"
+                }
+            ],
+            "二年级": [
+                {
+                    poem: "《草》",
+                    question: "“野火烧不尽”的下一句是什么？",
+                    options: ["春风吹又生", "离离原上草", "一岁一枯荣"],
+                    answer: "春风吹又生",
+                    testPoint: "感受野草顽强的生命力。"
+                },
+                {
+                    poem: "《宿新市徐公店》",
+                    question: "“儿童急走追黄蝶”的下一句是“飞入菜花无处寻”吗？",
+                    options: ["是", "否"],
+                    answer: "是",
+                    testPoint: "体会乡村生活的乐趣。"
+                },
+                {
+                    poem: "《望庐山瀑布》",
+                    question: "“疑是银河落九天”中的“银河”指的是什么？",
+                    options: ["瀑布", "天空中的银河", "河流"],
+                    answer: "瀑布",
+                    testPoint: "理解诗人的夸张和想象手法。"
+                }
+            ],
+            "三年级": [
+                {
+                    poem: "《夜书所见》",
+                    question: "“知有儿童挑促织”的下一句是什么？",
+                    options: ["夜深篱落一灯明", "江上秋风动客情", "萧萧梧叶送寒声"],
+                    answer: "夜深篱落一灯明",
+                    testPoint: "感受诗人的思乡之情。"
+                },
+                {
+                    poem: "《九月九日忆山东兄弟》",
+                    question: "“遍插茱萸少一人”中的“一人”指的是诗人自己吗？",
+                    options: ["是", "否"],
+                    answer: "是",
+                    testPoint: "体会诗人在佳节时对亲人的思念。"
+                },
+                {
+                    poem: "《望天门山》",
+                    question: "“碧水东流至此回”中的“回”是什么意思？",
+                    options: ["回旋", "回来", "回去"],
+                    answer: "回旋",
+                    testPoint: "理解诗句中字词的含义。"
+                }
+            ],
+            "四年级": [
+                {
+                    poem: "《题西林壁》",
+                    question: "“不识庐山真面目”的原因是什么？",
+                    options: ["只缘身在此山中", "横看成岭侧成峰", "远近高低各不同"],
+                    answer: "只缘身在此山中",
+                    testPoint: "明白当局者迷的道理。"
+                },
+                {
+                    poem: "《游山西村》",
+                    question: "“柳暗花明又一村”常用来形容什么？",
+                    options: ["在困境中看到希望", "春天的美景", "乡村的风光"],
+                    answer: "在困境中看到希望",
+                    testPoint: "体会诗句蕴含的哲理。"
+                },
+                {
+                    poem: "《黄鹤楼送孟浩然之广陵》",
+                    question: "“孤帆远影碧空尽”中的“孤帆”指的是孟浩然的船吗？",
+                    options: ["是", "否"],
+                    answer: "是",
+                    testPoint: "感受诗人与友人的离别之情。"
+                }
+            ],
+            "五年级": [
+                {
+                    poem: "《泊船瓜洲》",
+                    question: "“春风又绿江南岸”中的“绿”字可以换成“到”字吗？",
+                    options: ["不可以", "可以", "无所谓"],
+                    answer: "不可以",
+                    testPoint: "体会诗人用词的精妙。"
+                },
+                {
+                    poem: "《秋思》",
+                    question: "“复恐匆匆说不尽”的下一句是什么？",
+                    options: ["行人临发又开封", "洛阳城里见秋风", "欲作家书意万重"],
+                    answer: "行人临发又开封",
+                    testPoint: "感受诗人对家乡亲人的深切思念。"
+                },
+                {
+                    poem: "《长相思》",
+                    question: "“聒碎乡心梦不成”中的“聒”是什么意思？",
+                    options: ["声音嘈杂", "安静", "睡觉"],
+                    answer: "声音嘈杂",
+                    testPoint: "理解诗句中字词的含义。"
+                }
+            ],
+            "六年级": [
+                {
+                    poem: "《石灰吟》",
+                    question: "“粉骨碎身浑不怕”表达了诗人怎样的精神？",
+                    options: ["不怕牺牲、坚守高洁", "勇敢无畏、热爱生活", "乐观豁达、淡泊名利"],
+                    answer: "不怕牺牲、坚守高洁",
+                    testPoint: "体会诗人的高尚品格和精神追求。"
+                },
+                {
+                    poem: "《竹石》",
+                    question: "“千磨万击还坚劲”中的“坚劲”指的是竹子的什么特点？",
+                    options: ["坚韧不拔", "高大挺拔", "翠绿茂盛"],
+                    answer: "坚韧不拔",
+                    testPoint: "感受诗人借物喻人的写作手法。"
+                },
+                {
+                    poem: "《采薇（节选）》",
+                    question: "“昔我往矣，杨柳依依”描绘的是什么季节的景象？",
+                    options: ["春天", "夏天", "秋天"],
+                    answer: "春天",
+                    testPoint: "理解诗句所描绘的意境和情感。"
+                }
+            ]
+        };
+
+        const gradeSelection = document.querySelector('.grade-selection');
+        const questionContainer = document.querySelector('.question-container');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const testPointButton = document.getElementById('test-point');
+        const continueButton = document.getElementById('continue');
+        const circle = document.querySelector('.circle');
+        const testPointDisplay = document.getElementById('test-point-display');
+        const answerDisplay = document.getElementById('answer-display');
+        const answerContent = document.getElementById('answer-content');
+        const testPointContent = document.getElementById('test-point-content');
+
+        let currentGrade;
+        let currentQuestionIndex = 0;
+
+        // 年级选择按钮点击事件
+        const gradeButtons = document.querySelectorAll('.grade-button');
+        gradeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentGrade = button.dataset.grade;
+                gradeSelection.style.display = 'none';
+                questionContainer.style.display = 'block';
+                showQuestion();
+            });
+        });
+
+        // 显示题目
+        function showQuestion() {
+            const currentQuestion = questions[currentGrade][currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            optionsElement.innerHTML = '';
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option-button');
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option, currentQuestion));
+                optionsElement.appendChild(button);
+            });
+            testPointDisplay.style.display = 'none';
+            answerDisplay.style.display = 'none';
+            readQuestion(currentQuestion.question);
+            changeCircleColor();
+        }
+
+        // 检查答案
+        function checkAnswer(selectedOption, question) {
+            let message;
+            if (selectedOption === question.answer) {
+                message = "你真棒！";
+            } else {
+                message = `答错了，正确答案是：${question.answer}。${question.testPoint}`;
+            }
+            answerContent.textContent = message;
+            answerDisplay.style.display = 'block';
+        }
+
+        // 语音读题
+        function readQuestion(question) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(question);
+            synth.speak(utterance);
+        }
+
+        // 改变圆形颜色
+        function changeCircleColor() {
+            const colors = ['#007aff', '#0091ea', '#00b0ff', '#40c4ff', '#80d8ff', '#b3e5fc', '#e1f5fe'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            circle.style.backgroundColor = randomColor;
+        }
+
+        // 对应考点按钮点击事件
+        testPointButton.addEventListener('click', () => {
+            const currentQuestion = questions[currentGrade][currentQuestionIndex];
+            testPointContent.textContent = currentQuestion.testPoint;
+            testPointDisplay.style.display = 'block';
+        });
+
+        // 继续答题按钮点击事件
+        continueButton.addEventListener('click', () => {
+            testPointDisplay.style.display = 'none';
+            answerDisplay.style.display = 'none';
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions[currentGrade].length) {
+                showQuestion();
+            } else {
+                alert('该年级的题目已答完！');
+                gradeSelection.style.display = 'block';
+                questionContainer.style.display = 'none';
+                currentQuestionIndex = 0;
+            }
+        });
+    </script>
+</body>
+
+</html>    
